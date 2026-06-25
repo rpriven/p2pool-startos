@@ -6,7 +6,7 @@ const shape = z
     walletAddress: z.string().catch(''),
     miniSidechain: z.boolean().catch(true),
     monerodHost: z.string().catch(''),
-    monerodRpcPort: z.number().catch(18089),
+    monerodRpcPort: z.number().catch(18081),
     monerodZmqPort: z.number().catch(18083),
     logLevel: z.number().min(0).max(6).catch(3),
   })

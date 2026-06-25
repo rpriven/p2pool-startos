@@ -82,11 +82,11 @@ install: | check-deps check-init
 		echo "Error: You must define \"host: http://server-name.local\" in ~/.startos/config.yaml"; \
 		exit 1; \
 	fi; \
-	S9PK=$$(ls -t *.s9pk 2>/dev/null | head -1); \
-	if [ -z "$$S9PK" ]; then \
+	if [ -z "$$(ls *.s9pk 2>/dev/null)" ]; then \
 		echo "Error: No .s9pk file found. Run 'make' first."; \
 		exit 1; \
 	fi; \
+	S9PK=$$(start-cli s9pk select) || exit 1; \
 	printf "\n🚀 Installing %s to %s ...\n" "$$S9PK" "$$HOST"; \
 	start-cli package install -s "$$S9PK"
 
@@ -98,7 +98,7 @@ publish: | all
 	fi; \
 	S3BASE=$$(awk -F'/' '/^s9pk-s3base:/ {print $$3}' ~/.startos/config.yaml); \
 	if [ -z "$$S3BASE" ]; then \
-		echo "Error: You must define \"s3base: https://s3pks.my-s3-bucket.tld\" in ~/.startos/config.yaml"; \
+		echo "Error: You must define \"s3base: https://s9pks.my-s3-bucket.tld\" in ~/.startos/config.yaml"; \
 		exit 1; \
 	fi; \
 	command -v s3cmd >/dev/null || \

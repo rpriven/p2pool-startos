@@ -1,49 +1,71 @@
-# P2Pool — Post-Install Instructions
+# P2Pool
 
-## 1. Configure P2Pool
+> **You must run your own external Monero node.** P2Pool needs a `monerod` with
+> **unrestricted RPC** and **ZMQ** enabled, reachable from your StartOS server. The
+> StartOS Monero package will **not** work for this yet — it exposes only a restricted
+> RPC, and a restricted node can't submit the blocks your pool finds. Run a separate,
+> dedicated monerod (another machine on your LAN is ideal).
 
-After installation, open the **Actions** menu and run **Configure P2Pool**.
+## Documentation
 
-You must set:
-- **Monero Wallet Address** — your primary XMR address (starts with 4, 95 characters)
-- **Monero Node Host** — the hostname or LAN address of a running `monerod` instance
-  (e.g. `your-monero-node.local`)
+- [P2Pool README](https://github.com/SChernykh/p2pool/blob/master/README.md) — the upstream setup and usage reference, including the full list of monerod requirements.
 
-Optional fields have sensible defaults (P2Pool Mini enabled, RPC port 18089,
-ZMQ port 18083, log level 3).
+## What you get on StartOS
 
-## 2. Ensure monerod is accessible
+- **Your own P2Pool node** — a decentralized, 0%-fee Monero pool with no operator and no registration.
+- **A Stratum interface** your miners connect to directly.
+- **A P2P interface** for connecting to the rest of the P2Pool sidechain.
+- **A Configure action** to set your wallet and monerod connection.
 
-P2Pool needs monerod with:
-- Restricted RPC enabled (`--restricted-rpc --rpc-bind-ip=0.0.0.0`)
-- ZMQ enabled (`--zmq-pub tcp://0.0.0.0:18083`)
+## Getting set up
 
-If monerod is on the same LAN, make sure it accepts connections from your
-StartOS box's address.
+1. **Prepare your Monero node first.** On the machine running `monerod`, enable
+   unrestricted RPC and ZMQ and bind them where your StartOS box can reach them —
+   for example:
 
-## 3. Point your miners at the stratum port
+   ```
+   monerod --zmq-pub tcp://0.0.0.0:18083 \
+           --rpc-bind-ip 0.0.0.0 --confirm-external-bind \
+           --out-peers 32 --in-peers 64 \
+           --disable-dns-checkpoints --enable-dns-blocklist
+   ```
 
-Once P2Pool is running (health check turns green), configure your miners:
+   Keep this node on a trusted LAN or firewall the RPC port to your StartOS box —
+   an unrestricted RPC should never be open to the internet.
 
-```
-Pool:     <your-startos-box>.local:3333
-Username: (leave empty or use any string — not used by P2Pool)
-Password: (leave empty)
-```
+2. **Run the Configure P2Pool action.** Set your Monero **primary** wallet address
+   (it starts with `4`), your monerod **host**, and — if you changed them — the RPC
+   and ZMQ ports. Leave **Use P2Pool Mini** on if you mine under ~50 kH/s.
 
-For XMRig:
+3. **Start the service.** P2Pool connects to monerod first, then opens its stratum
+   port; the **Stratum Port** health check turns green once it is ready for miners.
+   If it stays red, recheck the monerod host, ports, RPC/ZMQ flags, and that the
+   node is reachable from your StartOS box.
+
+4. **Point your miners at the Stratum interface.** Copy its address from the
+   service's interfaces, and use it as your pool URL.
+
+## Using P2Pool
+
+### Connecting miners
+
+P2Pool uses your configured wallet address — miners need no username or password.
+For XMRig, set the pool to your Stratum interface address (port `3333`):
+
 ```json
-"pool": {
-  "url": "your-startos-box.local:3333",
-  "user": "",
-  "pass": ""
-}
+"pool": { "url": "your-startos-box.local:3333", "user": "", "pass": "" }
 ```
 
-## 4. Verify your shares
+### Re-configuring
 
-Track your mining progress on the P2Pool observer:
-- Mini: https://mini.p2pool.observer
-- Main: https://p2pool.observer
+Run **Configure P2Pool** again any time to change your wallet, switch between the
+Mini and main sidechain, or adjust the monerod connection. Restart the service to
+apply the changes.
 
-Search for your wallet address to see your shares and estimated payouts.
+### Checking your shares
+
+P2Pool has no built-in dashboard. Track your shares and estimated payouts on the
+public observer by searching your wallet address:
+
+- Mini sidechain: <https://mini.p2pool.observer>
+- Main sidechain: <https://p2pool.observer>
