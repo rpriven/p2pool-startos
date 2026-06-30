@@ -1,14 +1,9 @@
 name: Tag and Release
 
 on:
-  # Auto-publish on push is intentionally disabled until this package's release
-  # registry + S3 are configured (REFERENCE_REGISTRY / RELEASE_REGISTRY / S3_*).
-  # During dev, validate builds via build.yml (PR / manual dispatch). Re-enable the
-  # push trigger below once you're ready to publish releases.
-  workflow_dispatch:
-  # push:
-  #   branches: ['main']
-  #   paths-ignore: ['*.md']
+  push:
+    branches: ['main']
+    paths-ignore: ['*.md']
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

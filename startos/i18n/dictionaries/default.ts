@@ -14,7 +14,7 @@ const dict = {
   'Monero Node Host': 10,
   'Hostname or IP address of your Monero node (monerod). Example: your-monero-node.local': 11,
   'Monero RPC Port': 12,
-  'RPC port of your Monero node. Default: 18089 (restricted RPC, works for mining). Use 18081 (unrestricted) for full functionality including block submission.': 13,
+  "Your Monero node's unrestricted RPC port (default 18081). P2Pool requires the unrestricted RPC — a restricted node (typically 18089) cannot submit the blocks your pool finds.": 13,
   'Monero ZMQ Port': 14,
   'ZMQ port of your Monero node. Default: 18083.': 15,
   'Log Level': 16,
@@ -27,6 +27,9 @@ const dict = {
   'Stratum port for XMRig and other Monero miners': 23,
   'P2Pool is not configured. Run the Configure action first.': 24,
   'Must be a 95-character Monero primary address starting with 4 (not a subaddress or integrated address).': 25,
+  'P2P (sidechain)': 26,
+  'P2Pool peer-to-peer port for connecting to other P2Pool nodes': 27,
+  'P2Pool needs a Monero node with unrestricted RPC and ZMQ enabled, reachable from your StartOS server. The StartOS Monero service currently exposes only restricted RPC and will not work — you must run a separate, dedicated monerod.': 28,
 } as const
 
 export type I18nKey = keyof typeof dict
