@@ -1,0 +1,20 @@
+# p2pool-startos — typecheck CI (Tier 1)
+# DEPLOY: copy to .forgejo/workflows/check.yml in the p2pool-startos repo on the
+#   StartOS Forgejo (the instance the runner is paired to), commit, push.
+# VERIFY: repo → Actions tab → "check" run goes green on the push.
+# Repo uses npm (package-lock.json) — do not swap to bun here.
+name: check
+on:
+  push:
+  pull_request:
+jobs:
+  typecheck:
+    runs-on: test          # MUST match the runner's registered label (currently `test`)
+    steps:
+      - uses: actions/checkout@v4
+      # Fallback if the box can't fetch actions from github.com:
+      #   replace the line above with:
+      #   - run: git clone --depth 1 ${{ github.server_url }}/${{ github.repository }} . && git checkout ${{ github.sha }}
+      - run: npm ci
+      # Start9's pre-submit gate — must be green before any submission
+      - run: npx tsc --noEmit
