@@ -1,6 +1,7 @@
 # p2pool-startos — typecheck CI (Tier 1)
-# NOTE: uses plain git clone instead of actions/checkout@v4 — on this runner the
-# action fetch fails instantly (friction logged for Matt). Revisit when resolved.
+# Plain-git checkout: the StartOS forgejo-runner container lacks `git`, so any
+# `uses:` action fails at fetch (logged for upstream PR). The job image has git;
+# clone authenticates with the auto-provided job token (private repo).
 name: check
 on:
   push:
@@ -8,7 +9,12 @@ on:
 jobs:
   typecheck:
     runs-on: test          # MUST match the runner's registered label
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
-      - run: git clone --depth 1 --branch "${GITHUB_REF_NAME}" "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" . && git checkout "${GITHUB_SHA}" || true
+      - name: checkout
+        run: |
+          git clone --depth 1 --branch "${GITHUB_REF_NAME}" "http://ci:${GITHUB_TOKEN}@${GITHUB_SERVER_URL#*://}/${GITHUB_REPOSITORY}.git" .
+          git checkout "${GITHUB_SHA}"
       - run: npm ci
       - run: npx tsc --noEmit
