@@ -7,7 +7,7 @@
 #                    e.g. https://git.example.com/user/repo.git
 #     MIRROR_TOKEN — access token for that remote (write scope)
 #     NTFY_URL     — full ntfy topic URL for failure alerts
-#                    e.g. https://ntfy.example.com/repo-mirror-alerts
+#                    e.g. https://ntfy.example.com/<your-topic>
 #     NTFY_AUTH    — (optional) full Authorization header value for ntfy,
 #                    e.g. "Bearer tk_..." — omit if the topic is open
 # VERIFY: Actions tab → run "mirror" manually via workflow_dispatch → green run →
@@ -17,7 +17,7 @@
 # DESIGN NOTES:
 #   - Plain-git checkout, NOT actions/checkout: the StartOS runner container lacks
 #     `git`, so ANY `uses:` action fails at fetch (same bug check.yml works around;
-#     logged for the upstream PR to Matt).
+#     logged for the upstream PR).
 #   - `git clone --mirror` = bare clone with FULL history and all branches/tags.
 #     Push with --all + --tags (not --mirror): Forgejo/Gitea reject hidden refs
 #     like refs/pull/* that --mirror would try to push.
@@ -25,7 +25,7 @@
 #     jobs are a footgun. Alert on failure only, no success spam.
 #   - NEVER put the token in MIRROR_URL or this file. Secrets only.
 #   - `schedule` support: Forgejo Actions supports cron triggers; if the scheduled
-#     run never fires on this Forgejo version, note it as friction for Matt and
+#     run never fires on this Forgejo version, note it as upstream friction and
 #     drive it via workflow_dispatch + external cron meanwhile.
 name: mirror
 on:
